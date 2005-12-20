@@ -1,0 +1,47 @@
+snppsend version 1.95 - THIS IS A BETA RELEASE
+****BETA NOTES****
+This beta version only supports loading one config file.
+My plan is to have snppsend support loading of multiple xml config files.
+This will allow companies to distribute a copy of snppsend to every desktop
+with a config file that points to somewhere like http://company/pagerlist.xml
+
+Companies would then be able to update all the clients by editing one file.
+Employees could still modify their local config file to add their own entries.
+
+
+WHAT IS SNPPSEND?
+snppsend is an application written in perl to send messages to text (alpha-
+numeric) pagers.  snppsend reads text from stdin, converts any combination
+of CR/LF to a space and then sends the data to the recipients specified
+on the command line.
+
+
+HELP AND SUPPORT
+snppsend runs perfectly on my boxes (Fedora Core, modded ipCop Firewall, and
+FreeBSD).
+If you experience any problems running snppsend on your machine, feel free to
+send a message to code@darkpixel.com describing the problem.
+Since this application is free and my time is limited, I can not promise
+anyone technical support--but I will make an effort.
+
+
+INSTALL AND SETUP
+Installing snppsend is very easy.
+ - Login as root.
+ - Copy the snppsend file to /usr/bin.
+ - Copy the snppsend.conf file to /etc
+ - Edit the snppsend.conf file using your favorite text
+     editor.  snppsend.conf contains a few examples.
+
+
+ADVANCED USERS
+Anyone familiar with perl can dive into the code and play.
+You will notice two lines in the file "LoadConfigFromFile" and
+"LoadConfigFromWeb".
+These lines allow you to customize where snppsend loads it's data from.
+Straight out of the box, the program will look for /etc/snppsend.conf
+The LoadConfigFromWeb function will allow you to put in an address like
+http://private.mycompany.com/snppsend.conf.
+If you deploy snppsend throughout a company, this will allow you to have
+all copies reading the same config file off the internet.  Changes to one
+file will affect all versions of snppsend.

@@ -1,0 +1,6 @@
+setup ncurses interface
+better args handling (--help vs joepager vs < somefile)
+config handling in global include
+snppmod to add/edit/delete pagers and providers
+snppmod - include paging history
+sms support

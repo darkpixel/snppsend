@@ -1,0 +1,249 @@
+#!/usr/bin/perl -w
+
+# snppsend v0.98 STDIO Branch
+# Aaron C. de Bruyn <code@darkpixel.com>
+# This script is released to the public domain.
+# Use it, modify it, share it, hack it.  Enjoy it.
+# Any updates I make will be posted on my website.
+# http://www.darkpixel.com/
+
+# If you update snppsend in a way that may be
+# meaningful to others, feel free to email me and
+# I will post your version on my site or link to yours.
+
+# Some shout-outs
+# jeek in #pound-perl.pm on EFNet
+# Steve Kaylor and Brandon Zehm - their original script
+# inspired this program and I borrowed some of their
+# socket and snpp server communication code.
+
+
+use strict;
+use IO::Socket qw (:DEFAULT :crlf);
+
+my $globerror = '';
+
+# Windows users will have to change the following line from
+# $ENV{'HOME'} to $ENV{'APPDATA'}
+# in order to take advantage of having 'personal' providers and receivers
+# files.
+my $homecfg = $ENV{'HOME'};
+
+# Init some variables I will be using throughout the script
+my $datain = '';
+my %receivers = ();
+my %providers = ();
+
+sub GetReceivers {
+	# GetReceivers() Params
+	# $FilePath = Path to file containing receivers
+	# #DieOnFail = Should the program die if it can't open the file?
+	
+	my ($FilePath, $DieOnFail) = @_;
+	my $IsOpen = '';
+	my $recvdata = '';
+	
+	if ( $DieOnFail ) {
+		$IsOpen = open(GETRECV, "$FilePath") or die("Unable to open [$FilePath]\n");
+	} else {
+		$IsOpen = open(GETRECV, "$FilePath");
+	}	
+	if ( !$IsOpen ) { return 0; }
+	$recvdata = readline GETRECV;
+	if ( !$recvdata ) { return 0; }
+	while ( $recvdata ) {
+		my ($name, $provider, $number) = split(' ', "\L$recvdata\E");
+		if ( !exists $receivers{"$name"} ) {
+			$receivers{"$name"}[0] = $provider;
+			$receivers{"$name"}[1] = $number;
+		}
+		$recvdata = readline GETRECV;
+	}
+}
+
+sub GetProviders {
+	# GetProviders() Params
+	# $FilePath = Path to file containing providers
+	# #DieOnFail = Should the program die if it can't open the file?
+	
+	my ($FilePath, $DieOnFail) = @_;
+	my $IsOpen = '';
+	my $recvdata = '';
+	
+	if ( $DieOnFail ) {
+		$IsOpen = open(GETPROV, "$FilePath") or die("Unable to open [$FilePath]\n");
+	} else {
+		$IsOpen = open(GETPROV, "$FilePath");
+	}	
+	if ( !$IsOpen ) { return 0; }
+	$recvdata = readline GETPROV;
+	if ( !$recvdata ) { return 0; }
+	while ( $recvdata ) {
+		my ($name, $address, $port, $maxchars) = split(' ', "\L$recvdata\E");
+		if ( !exists $providers{"$name"} ) {
+			$providers{"$name"}[0] = $address;
+			$providers{"$name"}[1] = $port;
+			$providers{"$name"}[2] = $maxchars;
+		}
+		$recvdata = readline GETPROV;
+	}
+}
+
+sub ReceiverExists {
+	my $recvr = shift;
+	return exists $receivers{"$recvr"}
+}
+
+sub ProviderExists {
+	my $provdr = shift;
+	return exists $providers{"$provdr"}
+}
+
+sub GetProvider {
+	my $current = shift;
+	return $receivers{"$current"}[0];
+}
+
+sub GetProviderIP {
+	my $current = shift;
+	return $providers{$receivers{"$current"}[0]}[0];
+}
+
+sub GetProviderPort {
+	my $current = shift;
+	return $providers{$receivers{"$current"}[0]}[1];
+}
+
+sub GetProviderMaxChars {
+	my $current = shift;
+	return $providers{$receivers{"$current"}[0]}[2];
+}
+
+sub GetRecipientNumber {
+	my $current = shift;
+	return $receivers{"$current"}[1];
+}
+
+sub connectTo {
+	my ($server, $port) = @_;
+	socket(SERVER, PF_INET, SOCK_STREAM, getprotobyname('tcp')) || block {
+		$globerror = "Unable to create socket connection to [$server] on [$port]";
+		return 0;
+	};
+	
+	my $inet_aton = inet_aton($server) || block {
+		$globerror = "Unable to resolve [$server]";
+		return 0;
+	};
+	
+	my $dest = sockaddr_in($port, $inet_aton) || block {
+		$globerror = "Unable to create data structure sockaddr_in [$port] [$inet_aton]";
+		return 0;
+	};
+
+	connect(SERVER, $dest) || block {
+		$globerror = "Unable to connect to [$server] on [$port]";
+		return 0;
+	};
+
+	select(SERVER);
+	$| = 1;
+	select(STDOUT);
+	return 1;
+}
+
+sub SNPPChat {
+	my ($receiver, $message) = @_;
+	my $status = <SERVER>;
+	if ( $status !~ /220/i ) {
+		$status =~ s/$CRLF//;
+		$globerror = "The paging server greeted us with [$status]";
+		return 0;
+	}
+	
+	print SERVER "PAGE $receiver$CRLF";
+	$status = <SERVER>;
+	if ( $status !~ /250/i ) {
+		$status =~ s/$CRLF//;
+		$globerror = "Receiver [$receiver] was rejected with error [$status]";
+		return 0;
+	}
+	
+	print SERVER "MESS $message$CRLF";
+	$status = <SERVER>;
+	if ( $status !~ /250/i ) {
+		$status =~ s/$CRLF//;
+		$globerror = "Message entered with error [$status]";
+		return 0;
+	}
+	
+	print SERVER "SEND$CRLF";
+	$status = <SERVER>;
+	if ( $status !~ /250/i ) {
+		$status =~ s/$CRLF//;
+		$globerror = "Message rejected with error [$status]";
+		return 0;
+	}
+	
+	print SERVER "QUIT$CRLF";
+	$status = <SERVER>;
+	if ( $status !~ /221/i ) {
+		$status =~ s/$CRLF//;
+		$globerror = "Disconnect failed with error [$status]";
+		return 0;
+	}
+	return 1;
+}
+
+# Call the functions above to populate the hash
+# tables with providers and receivers.
+GetReceivers("$homecfg/.snppsend/receivers", 0);
+GetReceivers("/etc/snppsend/receivers", 0);
+GetProviders("$homecfg/.snppsend/providers",0);
+GetProviders("/etc/snppsend/providers",0);
+
+
+# Here is where the program really begins...
+my $totalreceivers = 0;  # A count of all valid receivers on the command line...
+
+foreach (@ARGV) {
+	if (!ReceiverExists($_)) {
+		print "Unable to locate: $_\n";
+	} else {
+		$totalreceivers++;
+	}
+}
+
+if ( $totalreceivers > 0 ) {
+	my $msgtosend = <STDIN>;
+	chomp($msgtosend);
+	print "Paging...\n";
+	foreach (@ARGV) {
+		if (ReceiverExists($_)) {
+			print "Paging $_...";
+			
+			if ( connectTo(GetProviderIP($_), GetProviderPort($_)) ) {
+				if ( SNPPChat(GetRecipientNumber($_),$msgtosend) ) {
+					print "done!\n";
+				} else {
+					print "ERROR\n";
+					print "SNPPChat: [$globerror]\n";
+				}
+			} else {
+				print "ERROR\n";
+				print "ConnectTo: [$globerror]\n";
+			}
+			close SERVER;
+
+			# print "Paging: ", $_, "\n";
+			# print "Provider: ", GetProvider($_), "\n";
+			# print "Number: ", GetRecipientNumber($_), "\n";
+			# print "Server IP: ", GetProviderIP($_), "\n";
+			# print "Server Port: ", GetProviderPort($_), "\n";
+			# print "Max Chars: ", GetProviderMaxChars($_), "\n";
+			# print "--done--\n"
+		}
+	}
+} else {
+	print "No recipients!\n";
+}
