@@ -1,5 +1,10 @@
-snppsend version 1.95 - THIS IS A BETA RELEASE
+snppsend version 2.00a - THIS IS A BETA RELEASE
+
 ****BETA NOTES****
+snppsend has been completely rewritten.
+The major change is from perl to python.
+It's going to be in python now.  Don't ask why.
+
 This beta version only supports loading one config file.
 My plan is to have snppsend support loading of multiple xml config files.
 This will allow companies to distribute a copy of snppsend to every desktop
@@ -10,9 +15,9 @@ Employees could still modify their local config file to add their own entries.
 
 
 WHAT IS SNPPSEND?
-snppsend is an application written in perl to send messages to text (alpha-
-numeric) pagers.  snppsend reads text from stdin, converts any combination
-of CR/LF to a space and then sends the data to the recipients specified
+snppsend is an application written in python to send messages to text (alpha-
+numeric) pagers.  snppsend reads text from stdin, drops any combination
+of CR/LF and then sends the data to the recipients specified
 on the command line.
 
 
@@ -35,7 +40,7 @@ Installing snppsend is very easy.
 
 
 ADVANCED USERS
-Anyone familiar with perl can dive into the code and play.
+Anyone familiar with python can dive into the code and play.
 You will notice two lines in the file "LoadConfigFromFile" and
 "LoadConfigFromWeb".
 These lines allow you to customize where snppsend loads it's data from.
