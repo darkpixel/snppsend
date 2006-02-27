@@ -33,12 +33,10 @@
 #   the original version of snppsend which was written
 #   in perl.
 
-import MySQLdb
+import sqlite
 
-db = MySQLdb.connect(host="localhost", user="tools", passwd="uttoolspass101!",db="uberhost")
-cursor = db.cursor()
-cursor.execute("SELECT * FROM Accounts")
-result = cursor.fetchall()
-for records in result:
-	print records[0], "-->", records[1]
+conn = sqlite.connect("snppsend.db")
+cursor = conn.cursor()
+cursor.execute("SELECT * FROM PROVIDERS;")
+print cursor.fetchall()
 
