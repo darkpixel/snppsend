@@ -4,43 +4,25 @@ snppsend version 2.00a - THIS IS A BETA RELEASE
 snppsend has been completely rewritten.
 The major change is from perl to python.
 It's going to be in python now.  Don't ask why.
-(Oh--and it was written in vi)
-
-My plan is to have snppsend support loading of multiple xml config files.
-This will allow companies to distribute a copy of snppsend to every desktop
-with a config file that points to somewhere like http://company/pagerlist.xml
-
-Companies would then be able to update all the clients by editing one file.
-Employees could still modify their local config file to add their own entries.
-
-
 
 --WHAT IS SNPPSEND?--
 snppsend is an application written in python to send messages to text (alpha-
-numeric) pagers.  snppsend reads text from stdin, converts and combination
+numeric) pagers.  snppsend reads text from stdin, converts any combination
 of CR/LF to a space and then sends the data to the recipients specified
-on the command line.  (Depending on demand, I may add a flag that leaves
-the CR/LF in there--but my text pager doesn't support CRLF).
-
+on the command line.
 
 --HELP AND SUPPORT--
-snppsend runs perfectly on my boxes Ubuntu Breezy and Hoary, Fedora Core 3
-and 4, and FreeBSD.  Your mileage may vary.
+snppsend runs perfectly on my various Ubuntu boxes.  Your mileage may vary.
 
 If you experience any problems running snppsend on your machine, feel free to
-leave a message in the sourceforge forums, create a bug ticket, or even send
-me a message: code@darkpixel.com describing the problem.
-Since this application is free and my time is limited, I can not promise
-technical support--but I will make an effort.
-
+drop me a message (code@darkpixel.com).
 
 --INSTALL AND SETUP--
 Installing snppsend is very easy.
  - Login as root.
- - Copy snppsend.py to /usr/bin
- - Copy snppsend.xml to /etc
- - Edit snppsend.xml using your favorite text editor.
-
+ - Copy snppsend to /usr/bin
+ - Copy snppsend.ini to /etc
+ - Edit /etc/snppsend.ini with your favorite text editor
 
 --ADVANCED USERS--
 Anyone familiar with python can dive into the code and play.
