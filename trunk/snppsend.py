@@ -32,6 +32,13 @@ def debugon():
 	print "Setting debugflag to 1"
 	debugflag = 1
 
+class SNPPServerException(Exception):
+	def __init__(self,value):
+		self.value = value
+
+	def __str__(self):
+		return repr(self.value)
+
 class SNPPChannel:
 	def __init__(self):
 		self.data= []
@@ -107,10 +114,16 @@ class SNPP(async_chat):
 
 	def found_terminator(self):
 		tmp = self.chan.get_data()
-		debug("found_terminator: " + tmp)
+		debug("Server Response: " + tmp)
 
-		if tmp.startswith("220"):
-			debug("IT STARTS WITH 220!  WOOT!")
+		if tmp.startswith("220") and self.chan.get_state() == 1:
+			pass
+		elif tmp.startswith("250") and self.chan.get_state() != 1:
+			pass
+		elif self.chan.get_state() == 0:
+			pass
+		else:
+			raise SNPPServerException, "Server responded with: " + tmp
 
 		debug(str(self.chan.get_state()))
 		if self.chan.get_state() == 1:
@@ -143,20 +156,22 @@ class SNPP(async_chat):
 
 def main(argv):
 	cfg = ConfigParser.RawConfigParser()
-	cfgfile = "snppsend.ini"
+	cfgfile = "/etc/snpp/snppsend.ini"
 
 	if len(argv) < 2:
 		usage()
 
 
 	try:                                
-		opts = getopt.getopt(argv[1:], "hdc:", ["help", "config=", "debug"])
+		opts = getopt.getopt(argv[1:], "Vhdc:", ["ver", "version", "help", "config=", "debug"])
 		for opt, param in opts[0]:
 			if opt in ("-h", "--help"):
 				usage()
 			elif opt in ("-c", "--config"):
 				debug("Using config file: " + param)
 				cfgfile = param
+			elif opt in ("-V", "--ver", "--version"):
+				print("snppsend v2.0a")
 			elif opt in ("-d", "--debug"):
 				debugon()
 
@@ -164,9 +179,13 @@ def main(argv):
         	debug ("usage()")
 		sys.exit(2)
 
-	cfg.readfp(open(cfgfile,"r"))
+	try:
+		cfg.readfp(open(cfgfile,"r"))
+	except IOError:
+		print("Unable to locate config file [" + cfgfile + "]")
+		sys.exit()
 
-	message = sys.stdin.read()
+	message = ""
 
 	for recv in opts[1]:
 		try:
@@ -183,8 +202,14 @@ def main(argv):
 
 		client = SNPP()
 		client.set_server_address((provider[0],int(provider[1])))
+		if len(message) == 0:
+			try:
+				message = sys.stdin.read()
+			except KeyboardInterrupt:
+				sys.exit()
 		client.set_message(message)
 		client.set_pager(receiver[1])
+		print("Paging [" + recv + "]")
 		client.sendpage()
 
 	try:
