@@ -135,13 +135,11 @@ def main(argv):
 	cfg = ConfigParser.RawConfigParser()
 	cfgfile = "snppsend.ini"
 
-	if len(argv) == 0:
-		usage()
-		#sys.exit
-
 	try:                                
 		opts = getopt.getopt(argv[1:], "hdc:", ["help", "config=", "debug"])
-		print opts
+		if len(opts[0]) == 0:
+			usage()
+			sys.exit
 		for opt, param in opts[0]:
 			if opt in ("-h", "--help"):
 				usage()
@@ -159,11 +157,14 @@ def main(argv):
         	debug ("usage()")
 		sys.exit(2)
 
-	#cfg.readfp(open(cfgfile,"r"))
+	cfg.readfp(open(cfgfile,"r"))
 
-	print "opts"
-	print opts[1][0:]
-
+	for recv in opts[1]:
+		print "page " + recv
+		receiver = cfg.get("Receivers", recv)
+		print receiver
+		#provider = cfg.get("Providers", receiver[0])
+		#print provider
 
 	#client = SNPP()
 	#client.set_server_address(("67.115.154.70",444))
