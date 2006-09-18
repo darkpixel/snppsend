@@ -15,6 +15,6 @@ if not cfg.has_section("Providers"):
 oldproviders = open("providers", "r")
 for line in oldproviders:
 	tmp = line.replace("\t\t", "\t").replace("\t\t", "\t").replace("\t\t", "\t").split("\t")
-	cfg.set("Providers", tmp[0], (tmp[1], tmp[2], tmp[3].strip()))
+	cfg.set("Providers", tmp[0], tmp[1] + "," + tmp[2] + "," + tmp[3].strip())
 
 cfg.write(open("snppsend.ini","w"))

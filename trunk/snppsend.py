@@ -21,9 +21,16 @@
 import asynchat, asyncore, socket, ConfigParser, os, sys, getopt
 from asynchat import async_chat
 
-
+debugflag = 0
 def debug(*args):
-    print "debug: ", " ".join(args)
+	global debugflag
+	if debugflag != 0:
+		print "debug: ", " ".join(args)
+
+def debugon():
+	global debugflag
+	print "Setting debugflag to 1"
+	debugflag = 1
 
 class SNPPChannel:
 	def __init__(self):
@@ -117,6 +124,9 @@ class SNPP(async_chat):
 			self.chan.set_state(4)
 		elif self.chan.get_state() == 4:
 			self.__send_command("QUIT")
+			self.chan.set_state(0)
+		elif self.chan.get_state() == 0:
+			pass
 		else:
 			debug("Unknown SNPP state!")
 			sys.exit("Invalid socket state")
@@ -135,23 +145,20 @@ def main(argv):
 	cfg = ConfigParser.RawConfigParser()
 	cfgfile = "snppsend.ini"
 
+	if len(argv) < 2:
+		usage()
+
+
 	try:                                
 		opts = getopt.getopt(argv[1:], "hdc:", ["help", "config=", "debug"])
-		if len(opts[0]) == 0:
-			usage()
-			sys.exit
 		for opt, param in opts[0]:
 			if opt in ("-h", "--help"):
 				usage()
-				#sys.exit()
 			elif opt in ("-c", "--config"):
-				debug("config directive: " + param)
+				debug("Using config file: " + param)
 				cfgfile = param
 			elif opt in ("-d", "--debug"):
-				debug("In debug mode!")
-			else:
-				debug("Unknown Option: " + opt)
-				debug("Unknown Arg: " + param)
+				debugon()
 
 	except getopt.GetoptError:
         	debug ("usage()")
@@ -159,19 +166,26 @@ def main(argv):
 
 	cfg.readfp(open(cfgfile,"r"))
 
+	message = sys.stdin.read()
+
 	for recv in opts[1]:
-		print "page " + recv
-		receiver = cfg.get("Receivers", recv)
-		print receiver
-		#provider = cfg.get("Providers", receiver[0])
-		#print provider
+		try:
+			receiver = cfg.get("Receivers", recv).split(",")
+		except ConfigParser.NoOptionError:
+			print("Invalid pager [" + recv + "]")
+			continue
 
-	#client = SNPP()
-	#client.set_server_address(("67.115.154.70",444))
-	#client.set_message(sys.stdin.read())
-	#client.set_pager("3606901574")
-	#client.sendpage()
+		try:
+			provider = cfg.get("Providers", receiver[0]).split(",")
+		except ConfigParser.NoOptionError:
+			print("Invalid provider [" + receiver[0] + "] for pager [" + recv + "]")
+			continue
 
+		client = SNPP()
+		client.set_server_address((provider[0],int(provider[1])))
+		client.set_message(message)
+		client.set_pager(receiver[1])
+		client.sendpage()
 
 	try:
 		asyncore.loop()

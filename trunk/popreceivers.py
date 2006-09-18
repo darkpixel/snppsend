@@ -15,6 +15,6 @@ if not cfg.has_section("Receivers"):
 oldreceivers = open("receivers", "r")
 for line in oldreceivers:
 	tmp = line.replace("\t\t", "\t").replace("\t\t", "\t").replace("\t\t", "\t").split("\t")
-	cfg.set("Receivers", tmp[0], (tmp[1], tmp[2].strip()))
+	cfg.set("Receivers", tmp[0], tmp[1] + "," + tmp[2].strip())
 
 cfg.write(open("snppsend.ini","w"))
