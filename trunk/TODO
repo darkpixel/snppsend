@@ -1,4 +1,3 @@
-setup ncurses interface for adding/deleting?
 arg handling for add/del users
-sms support
+sms and email support?
 history/logging

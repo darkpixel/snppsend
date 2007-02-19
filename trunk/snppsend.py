@@ -156,7 +156,7 @@ class SNPP(async_chat):
 
 def main(argv):
 	cfg = ConfigParser.RawConfigParser()
-	cfgfile = "/etc/snpp/snppsend.ini"
+	cfgfile = "/etc/snppsend.conf"
 
 	if len(argv) < 2:
 		usage()
