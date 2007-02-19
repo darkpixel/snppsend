@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# snppsend v2.00a: a simple program to deliver messages to text pagers
+# snppsend v2.00 Beta 2: a simple program to deliver messages to text pagers
 #                  using the SNPP protocol.
 # Copyright (C) 2004 - 2006 Aaron C. de Bruyn <code@darkpixel.com>
 # 
@@ -171,7 +171,7 @@ def main(argv):
 				debug("Using config file: " + param)
 				cfgfile = param
 			elif opt in ("-V", "--ver", "--version"):
-				print("snppsend v2.0a")
+				print("snppsend v2.0 Beta 2")
 			elif opt in ("-d", "--debug"):
 				debugon()
 
