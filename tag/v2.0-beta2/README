@@ -1,0 +1,29 @@
+snppsend version 2.00a - THIS IS A BETA RELEASE
+
+--BETA NOTES--
+snppsend has been completely rewritten.
+The major change is from perl to python.
+It's going to be in python now.  Don't ask why.
+For anyone that managed to get an early sneak peek, the beta version stupidly used /etc/snppsend/snppsend.ini for it's config.  Does it show that I'm a recovering windows n00btard?  The config file is now /etc/snppsend.conf.
+
+--WHAT IS SNPPSEND?--
+snppsend is an application written in python to send messages to text (alpha-
+numeric) pagers.  snppsend reads text from stdin, converts any combination
+of CR/LF to a space and then sends the data to the recipients specified
+on the command line.
+
+--HELP AND SUPPORT--
+snppsend runs perfectly on my various Ubuntu boxes.  Your mileage may vary.
+
+If you experience any problems running snppsend on your machine, feel free to
+drop me a message (code@darkpixel.com).
+
+--INSTALL AND SETUP--
+Installing snppsend is very easy.
+ - Login as root.
+ - Copy snppsend.py to /usr/bin
+ - Copy snppsend.conf to /etc
+ - Edit /etc/snppsend.conf with your favorite text editor
+
+--ADVANCED USERS--
+Anyone familiar with python can dive into the code and play.
