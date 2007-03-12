@@ -1,5 +1,7 @@
 snppsend version 2.00
 
+another test
+
 --NOTES--
 snppsend has been completely rewritten.
 The big change is from perl to python.
