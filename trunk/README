@@ -1,8 +1,8 @@
-snppsend version 2.00a - THIS IS A BETA RELEASE
+snppsend version 2.00
 
---BETA NOTES--
+--NOTES--
 snppsend has been completely rewritten.
-The major change is from perl to python.
+The big change is from perl to python.
 It's going to be in python now.  Don't ask why.
 For anyone that managed to get an early sneak peek, the beta version stupidly used /etc/snppsend/snppsend.ini for it's config.  Does it show that I'm a recovering windows n00btard?  The config file is now /etc/snppsend.conf.
 
