@@ -1,0 +1,19 @@
+snppsend version 1.5
+
+--WHAT IS SNPPSEND?--
+snppsend is an application written in python to send messages to text (alpha-
+numeric) pagers.  snppsend reads text from stdin, converts any combination
+of CR/LF to a space and then sends the data to the recipients specified
+on the command line.
+
+--HELP AND SUPPORT--
+snppsend runs perfectly on my various Ubuntu boxes.  Your mileage may vary.
+
+If you experience any problems running snppsend on your machine, feel free to
+drop me a message (aaron@heyaaron.com).
+
+--INSTALL AND SETUP--
+ - Login as root.
+ - Copy snppsend.py to /usr/local/bin
+ - Copy snppsend.conf to /etc
+ - Edit /etc/snppsend.conf with your favorite text editor
