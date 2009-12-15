@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-# snppsend v1.8: a simple program to deliver messages to text pagers
+_VER = 'v1.9'
+
+# snppsend v1.9: a simple program to deliver messages to text pagers
 #                  using the SNPP protocol.
 # Copyright (C) 2004 - 2009 Aaron C. de Bruyn <aaron@heyaaron.com>
 # 
@@ -20,20 +22,6 @@
 
 import asynchat, asyncore, socket, ConfigParser, os, sys, getopt
 from asynchat import async_chat
-
-_VER = 'v1.8'
-
-debugflag = 0
-
-def debug(*args):
-	global debugflag
-	if debugflag != 0:
-		print 'debug: ', ' '.join(args)
-
-def debugon():
-	global debugflag
-	print 'Setting debugflag to 1'
-	debugflag = 1
 
 class SNPPServerException(Exception):
 	def __init__(self,value):
@@ -57,6 +45,7 @@ class SNPPChannel:
 
 	def set_state(self,newstate):
 		self.state = newstate
+		# SNPP Protocol States
 		# 0 - Initialized
 		# 1 - Connected (Send Pager ID)
 		# 2 - Pager Accepted (Send message)
@@ -112,13 +101,10 @@ class SNPP(async_chat):
 		return self.address
 
 	def __send_command(self,command):
-		debug('__send_command: ' + command)
 		self.push(command + '\r\n')
 
 	def found_terminator(self):
 		tmp = self.chan.get_data()
-		debug('Server Response: ' + tmp)
-
 		if tmp.startswith('220') and self.chan.get_state() == 1:
 			pass
 		elif tmp.startswith('250') and self.chan.get_state() != 1:
@@ -128,7 +114,6 @@ class SNPP(async_chat):
 		else:
 			raise SNPPServerException, 'Server response unexpected: ' + tmp
 
-		debug(str(self.chan.get_state()))
 		if self.chan.get_state() == 1:
 			self.__send_command('PAGE ' + self.pager)
 			self.chan.set_state(2)
@@ -144,15 +129,12 @@ class SNPP(async_chat):
 		elif self.chan.get_state() == 0:
 			pass
 		else:
-			debug('Unknown SNPP state!')
-			sys.exit('Oops:  I ended up with an unknown state (%s)' %(self.chan.get_state()))
+			raise ValueError('Invalid state should never occur (%s)' %(self.chan.get_state()))
 
 	def handle_connect(self):
-		debug('socket connected')
 		self.chan.set_state(1)
 	
 	def handle_close(self):
-		debug('socket closed')
 		self.close()
 		self.chan.set_state(0)
 
@@ -165,20 +147,16 @@ def main(argv):
 		usage()
 
 	try:                                
-		opts = getopt.getopt(argv[1:], 'Vhdc:', ['ver', 'version', 'help', 'config=', 'debug'])
+		opts = getopt.getopt(argv[1:], 'Vhc:', ['ver', 'version', 'help', 'config='])
 		for opt, param in opts[0]:
 			if opt in ('-h', '--help'):
 				usage()
 			elif opt in ('-c', '--config'):
-				debug('Using config file: ' + param)
 				cfgfile = param
 			elif opt in ('-V', '--ver', '--version'):
 				print('snppsend %s' %(_VER))
-			elif opt in ('-d', '--debug'):
-				debugon()
 
 	except getopt.GetoptError:
-        	debug ('usage()')
 		sys.exit(2)
 
 	try:
@@ -217,10 +195,10 @@ def main(argv):
 	try:
 		asyncore.loop()
 	except KeyboardInterrupt:
-		debug('Windows would probably just coredump here...')
+		sys.exit(0)
 
 def usage():
-	print('snppsend.py (-c <file> | --config=<file>) (-d | --debug) receiver')
+	print('snppsend.py (-c <file> | --config=<file>) receiver')
 
 if __name__ == '__main__':
         main(sys.argv)
