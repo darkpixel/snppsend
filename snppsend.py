@@ -139,6 +139,7 @@ class SNPP(async_chat):
 def main(argv):
 	cfg = ConfigParser.RawConfigParser()
 	cfgfile = '/etc/snppsend.conf'
+        cfgdir = '/etc/snppsend.d'
 
 	if len(argv) < 2:
 		usage()
@@ -155,37 +156,35 @@ def main(argv):
 	except getopt.GetoptError:
 		sys.exit(2)
 
-	try:
-		cfg.readfp(open(cfgfile,'r'))
-	except IOError:
-		print('Unable to locate config file [' + cfgfile + ']')
-		sys.exit()
-
 	message = ''
 
 	for recv in opts[1]:
 		try:
-			receiver = cfg.get('Receivers', recv).split(',')
-		except ConfigParser.NoOptionError:
-			print('Invalid pager [' + recv + ']')
-			continue
-
-		try:
-			provider = cfg.get('Providers', receiver[0]).split(',')
-		except ConfigParser.NoOptionError:
-			print('Invalid provider [' + receiver[0] + '] for pager [' + recv + ']')
-			continue
+			receiverfh = open('%s/%s.receiver' %(cfgdir, recv), 'r')
+			rlines = receiverfh.readlines()
+			receiver_name = recv.strip()
+                        receiver_number = rlines[2].strip()
+			try:
+				providerfh = open('%s/%s.provider' %(cfgdir, rlines[1].strip()))
+				plines = providerfh.readlines()
+				provider_host = plines[1].strip()
+				provider_port = plines[2].strip() or 444
+				provider_maxchars = plines[3].strip()
+			except IOError:
+				print 'Unable to locate provider (%s) for receiver %s' %(rlines[1].strip(), recv)
+		except IOError:
+			print 'Unable to locate receiver: %s' %(recv)
 
 		client = SNPP()
-		client.set_server_address((provider[0],int(provider[1])))
+		client.set_server_address((provider_host,int(provider_port)))
 		if len(message) == 0:
 			try:
 				message = sys.stdin.read()
 			except KeyboardInterrupt:
 				sys.exit()
 		client.set_message(message)
-		client.set_pager(receiver[1])
-		print('Paging [' + recv + ']')
+		client.set_pager(receiver_number)
+		print('Paging [%s] at %s using server %s port %s' %(receiver_name, receiver_number, provider_host, provider_port))
 		client.sendpage()
 
 	try:
