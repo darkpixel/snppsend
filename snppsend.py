@@ -18,7 +18,7 @@ _VER = 'v2.1'
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import asynchat, asyncore, socket, ConfigParser, os, sys, getopt
+import asynchat, asyncore, socket, ConfigParser, os, sys, getopt, urllib2
 from asynchat import async_chat
 
 class SNPPServerException(Exception):
@@ -138,22 +138,30 @@ class SNPP(async_chat):
 
 def main(argv):
 	cfg = ConfigParser.RawConfigParser()
-	cfgfile = '/etc/snppsend.conf'
         cfgdir = '/etc/snppsend.d'
+
+response = urllib2.urlopen('http://www.example.com/')
+html = response.read()
+
 
 	if len(argv) < 2:
 		usage()
 	try:                                
-		opts = getopt.getopt(argv[1:], 'Vhc:', ['ver', 'version', 'help', 'config='])
+		opts = getopt.getopt(argv[1:], 'Vhcp:', ['ver', 'version', 'help', 'config=', 'providers'])
 		for opt, param in opts[0]:
 			if opt in ('-h', '--help'):
 				usage()
+			if opt in ('-p', '--providers'):
+				print 'Providers:'
+				print os.listdir(cfgdir)
+				sys.exit()
 			elif opt in ('-c', '--config'):
-				cfgfile = param
+				cfgdir = param
 			elif opt in ('-V', '--ver', '--version'):
 				print('snppsend %s' %(_VER))
 
 	except getopt.GetoptError:
+		print 'Bad options!'
 		sys.exit(2)
 
 	message = ''
