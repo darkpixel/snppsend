@@ -1,3 +1,5 @@
-arg handling for add/del users
-sms and email support?
 history/logging
+break snppsend.conf into pieces
+  - snposend.conf which holds a basic config of providers and
+  - /etc/snppsend.d/* which holds admin configured providers and recipients
+  - ~/.snppsend/* which holds user configured providers and recipients
