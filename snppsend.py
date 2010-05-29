@@ -64,7 +64,6 @@ class SNPP(async_chat):
 		self.message = ''
 		self.chan = SNPPChannel()
 		self.collect_incoming_data = self.chan.collect
-
 		async_chat.set_terminator(self,'\r\n')
 
 	def sendpage(self):
@@ -109,7 +108,7 @@ class SNPP(async_chat):
 		elif self.chan.get_state() == 0:
 			pass
 		else:
-			raise SNPPServerException, 'Server response unexpected: ' + tmp
+			raise ValueError('Invalid server response: %s' %(tmp))
 
 		if self.chan.get_state() == 1:
 			self.__send_command('PAGE ' + self.pager)
@@ -140,8 +139,8 @@ def main(argv):
 	cfg = ConfigParser.RawConfigParser()
         cfgdir = '/etc/snppsend.d'
 
-response = urllib2.urlopen('http://www.example.com/')
-html = response.read()
+	#response = urllib2.urlopen('http://www.example.com/')
+	#html = response.read()
 
 
 	if len(argv) < 2:
@@ -180,8 +179,10 @@ html = response.read()
 				provider_maxchars = plines[3].strip()
 			except IOError:
 				print 'Unable to locate provider (%s) for receiver %s' %(rlines[1].strip(), recv)
+				break
 		except IOError:
 			print 'Unable to locate receiver: %s' %(recv)
+			break
 
 		client = SNPP()
 		client.set_server_address((provider_host,int(provider_port)))
@@ -193,7 +194,12 @@ html = response.read()
 		client.set_message(message)
 		client.set_pager(receiver_number)
 		print('Paging [%s] at %s using server %s port %s' %(receiver_name, receiver_number, provider_host, provider_port))
-		client.sendpage()
+		try:
+			client.sendpage()
+		except socket.gaierror:
+			print 'Error contacting paging server: %s' %(provider_host)
+		except SNPPServerException:
+			print 'Paging server reported error: %s' %(SNPPServerException)
 
 	try:
 		asyncore.loop()
