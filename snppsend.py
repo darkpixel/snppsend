@@ -3,7 +3,7 @@ _VER = 'v2.1'
 
 # snppsend v2.1: a simple program to deliver messages to text pagers
 #                using the SNPP protocol.
-# Copyright (c) 2004 - 2010 Aaron C. de Bruyn <aaron@heyaaron.com>
+# Copyright (c) 2004-2011 Aaron C. de Bruyn <aaron@heyaaron.com>
 # 
 # This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -139,10 +139,6 @@ class SNPP(async_chat):
 def main(argv):
 	cfg = ConfigParser.RawConfigParser()
         cfgdir = '/etc/snppsend.d'
-
-response = urllib2.urlopen('http://www.example.com/')
-html = response.read()
-
 
 	if len(argv) < 2:
 		usage()
