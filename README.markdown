@@ -36,3 +36,7 @@ INSTALL AND SETUP
 * Copy snppsend.py to /usr/local/bin
 * Copy snppsend.conf to /etc
 * Edit /etc/snppsend.conf with your favorite text editor
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/darkpixel/snppsend/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
